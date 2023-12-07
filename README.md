@@ -20,8 +20,16 @@ $ microk8s helm uninstall full-send
 ```
 
 https://kubernetes.io/docs/concepts/configuration/configmap
+
 A ConfigMap is an API object used to store non-confidential data in key-value pairs. Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume. A ConfigMap allows you to decouple environment-specific configuration from your container images, so that your applications are easily portable. You can write a Pod spec that refers to a ConfigMap and configures the container(s) in that Pod based on the data in the ConfigMap. The Pod and the ConfigMap must be in the same namespace. There are four different ways that you can use a ConfigMap to configure a container inside a Pod:
+
 1. Inside a container command and args
 2. Environment variables for a container
 3. Add a file in read-only volume, for the application to read
 4. Write code to run inside the Pod that uses the Kubernetes API to read a ConfigMap
+
+Regarding templates: 
+
+1. Most files in templates/ are treated as if they contain Kubernetes manifests
+2. The NOTES.txt is one exception
+3. Files whose name begins with an underscore (_) are assumed to not have a manifest inside. These files are not rendered to Kubernetes object definitions, but are available everywhere within other chart templates for use.

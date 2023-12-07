@@ -1,15 +1,3 @@
-# https://kubernetes.io/docs/concepts/configuration/configmap
-# A ConfigMap is an API object used to store non-confidential data in key-value pairs. 
-# Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume.
-# A ConfigMap allows you to decouple environment-specific configuration from 
-# your container images, so that your applications are easily portable.
-# You can write a Pod spec that refers to a ConfigMap and configures the container(s) 
-# in that Pod based on the data in the ConfigMap. The Pod and the ConfigMap must be in the same namespace.
-# There are four different ways that you can use a ConfigMap to configure a container inside a Pod:
-# 1. Inside a container command and args
-# 2. Environment variables for a container
-# 3. Add a file in read-only volume, for the application to read
-# 4. Write code to run inside the Pod that uses the Kubernetes API to read a ConfigMap
 apiVersion: v1
 kind: ConfigMap
 # Use `$microk8s helm install --debug --dry-run` to render templates
@@ -59,3 +47,14 @@ data:
     {{- range tuple "small" "medium" "large" }}
     - {{ . | title | quote }}
     {{- end }} 
+  # variable example - you can use these inside any scope
+  {{- $relname := .Release.Name -}}
+  releaseVar: {{ $relname }}
+  toppingsIndex: |-
+    {{- range $index, $topping := .Values.pizzaToppings }}
+      {{ $index }}: {{ $topping }}
+    {{- end }}
+  # key: val range example
+  {{- range $key, $val := .Values.favorite }}
+  {{ $key }}: {{ $val | upper | quote }}
+  {{- end }}
