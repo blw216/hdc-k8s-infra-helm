@@ -8,6 +8,10 @@ metadata:
   # Other options: {{ .Release.Namespace }} ; {{ .Release.IsUpgrade }} ; {{ .Release.IsInstall }}
   # {{ .Release.Revision }} ; {{ .Release.Service }}
   name: {{ .Release.Name }}-configmap
+  # Use the defined template in _helpers.tpl
+  # The final `.` passes in the current scope to the template
+  {{- template "mychart.labels" . }}
+{{ include "mychart.app" . | indent 4 }}
 data:
   # Values from the `values.yaml` file also can be accessed this way, e.g.: {{ .Values.favorite_drink }}
   # Charts can be accessed like this as well: {{ .Chart.Name }}-{{ .Chart.Version }}
@@ -58,3 +62,20 @@ data:
   {{- range $key, $val := .Values.favorite }}
   {{ $key }}: {{ $val | upper | quote }}
   {{- end }}
+  # Need to watch the indentation when bringing in a template
+  # Convention: It is considered preferable to use include over template in Helm templates
+{{ include "mychart.app" . | indent 2 }}
+  # Use the .toml files
+  {{- $files := .Files }}
+  {{- range tuple "config1.toml" "config2.toml" "config3.toml" }}
+  {{ . }}: |-
+    {{ $files.Get . }}
+  {{- end }}
+  # Another way to access the files
+{{ (.Files.Glob "*.toml").AsConfig | indent 2}}
+  token: {{ .Files.Get "config1.toml" | b64enc }}
+  some-file.txt: 
+    {{ range .Files.Lines "config4.toml" -}}
+    {{ . }}
+    {{ end }}
+
