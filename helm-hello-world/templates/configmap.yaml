@@ -1,0 +1,61 @@
+# https://kubernetes.io/docs/concepts/configuration/configmap
+# A ConfigMap is an API object used to store non-confidential data in key-value pairs. 
+# Pods can consume ConfigMaps as environment variables, command-line arguments, or as configuration files in a volume.
+# A ConfigMap allows you to decouple environment-specific configuration from 
+# your container images, so that your applications are easily portable.
+# You can write a Pod spec that refers to a ConfigMap and configures the container(s) 
+# in that Pod based on the data in the ConfigMap. The Pod and the ConfigMap must be in the same namespace.
+# There are four different ways that you can use a ConfigMap to configure a container inside a Pod:
+# 1. Inside a container command and args
+# 2. Environment variables for a container
+# 3. Add a file in read-only volume, for the application to read
+# 4. Write code to run inside the Pod that uses the Kubernetes API to read a ConfigMap
+apiVersion: v1
+kind: ConfigMap
+# Use `$microk8s helm install --debug --dry-run` to render templates
+metadata:
+  # Explanation: .Release.Name as "start at the top namespace, find the Release object, then look inside of it for an object called Name".
+  # It appears to be the value entered in `$microk8s helm install <value> .`
+  # the double curly braces are called template directives
+  # Other options: {{ .Release.Namespace }} ; {{ .Release.IsUpgrade }} ; {{ .Release.IsInstall }}
+  # {{ .Release.Revision }} ; {{ .Release.Service }}
+  name: {{ .Release.Name }}-configmap
+data:
+  # Values from the `values.yaml` file also can be accessed this way, e.g.: {{ .Values.favorite_drink }}
+  # Charts can be accessed like this as well: {{ .Chart.Name }}-{{ .Chart.Version }}
+  # Cluster information, e.g. cluster version = {{ .Capabilities.KubeVersion.Major }}.{{ .Capabilities.KubeVersion.Minor }}
+  # Template file metadata: {{ .Template.Name }} {{ .Template.BasePath }}
+  # Convention: choose to use only initial lower case letters in order to distinguish local names from those built-in.
+  myvalue: "Hello World"
+  drink: {{ .Values.favorite_drink }}
+  # When injecting strings from the .Values object into the template, we ought to quote these strings
+  favdrink: {{ quote .Values.favorite.drink }}
+  # UNIX-style pipelines are also supported...neat
+  food: {{ .Values.favorite.food | quote | upper }}
+  # Default value would be used if .Values.favorite.food was not in values.yaml
+  combo: {{ .Values.favorite.food | default "taco" | repeat 2 | quote }}
+  # Lookups do not/not run when using the --dry-run flag!
+  # Function list: https://helm.sh/docs/chart_template_guide/function_list/
+  looktest: {{ lookup "v1" "Pod" "observability" "loki-0" }}
+  # Use the `eq` operator for control flow, whitespace is important
+  {{- if eq .Values.favorite.drink "coffee" }}
+  mug: "true"
+  {{- end }}
+  # You can set the scope to reduce typing long value paths
+  # This only executes if pipeline is not empty
+  {{- with .Values.favorite }}
+  drink_with: {{ .drink | default "tea" | quote }}
+  food_with: {{ .food | upper | quote }}
+  # `$` can be used to access the root scope
+  release: {{ $.Release.Name }}
+  {{- end }}
+  # The |- marker in YAML takes a multi-line string. This can be a useful technique for embedding big blocks of data inside of your manifests
+  toppings: |-
+    {{- range $.Values.pizzaToppings }}
+    - {{ . | title | quote }}
+    {{- end }}
+  # You can make lists directly inside of your template
+  sizes: |-
+    {{- range tuple "small" "medium" "large" }}
+    - {{ . | title | quote }}
+    {{- end }} 

@@ -1,0 +1,12 @@
+# Using the `set` flag in `$ Helm install` overrides values here, 
+# e.g. `--set favorite_drink=slurm`
+favorite_drink: coffee
+# Convention: Keep tree values as shallow as possible
+# Helm will coalesce the default and overridden keys, be careful when overriding
+favorite:
+  drink: coffee
+  food: pizza
+pizzaToppings:
+- jalapeno
+- pepperoni
+- onions
