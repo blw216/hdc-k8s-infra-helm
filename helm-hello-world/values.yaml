@@ -9,4 +9,10 @@ favorite:
 pizzaToppings:
 - jalapeno
 - pepperoni
-- onions
+- onions'
+# This will override the dessert config in /charts/mysubchart/values.yaml
+mysubchart:
+  dessert: ice cream
+# Globals
+global:
+  salad: caesar

@@ -33,3 +33,12 @@ Regarding templates:
 1. Most files in templates/ are treated as if they contain Kubernetes manifests
 2. The NOTES.txt is one exception
 3. Files whose name begins with an underscore (_) are assumed to not have a manifest inside. These files are not rendered to Kubernetes object definitions, but are available everywhere within other chart templates for use.
+
+Regarding subcharts:
+
+1. A subchart is considered "stand-alone", which means a subchart can never explicitly depend on its parent chart.
+2. For that reason, a subchart cannot access the values of its parent.
+3. A parent chart can override values for subcharts.
+4. Helm has a concept of global values that can be accessed by all charts.
+5. Parent charts and subcharts can share templates. Any defined block in any chart is available to other charts.
+
